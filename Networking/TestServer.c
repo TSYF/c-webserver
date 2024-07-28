@@ -28,7 +28,7 @@ void test(Server *server) {
         printf("%s\n", buffer);
 
         // respond();
-        hello = "HTTP 1.1 200 OK\nContent-Type: text/html\n\n<body><h1>Hello World!</h1></body>";
+        hello = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 34\n\n<body><h1>Hello World!</h1></body>";
         write(new_socket, hello, strlen(hello));
         close(new_socket);
 
