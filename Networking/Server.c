@@ -1,5 +1,13 @@
 #include "Server.h"
 #include <stdio.h>
+#include <unistd.h>
+
+/** This one's pretty much responsible for reading the TCP input.
+* @param server Server Pointer to the server struct that owns this method.
+* @param buffer_size Size of allowed input
+* @param buffer String pointer into which to write the input.
+*/
+static int _read(Server* server, const unsigned int buffer_size, char buffer[]);
 
 Server server_constructor(
     int domain,
@@ -25,6 +33,8 @@ Server server_constructor(
     server.address.sin_addr.s_addr = htonl(interface); 
 
     server.socket = socket(domain, service, protocol);
+
+    server._read = _read;
     // test_connection(server.socket);
     
     if (server.socket == -1) {
@@ -52,4 +62,20 @@ Server server_constructor(
     server.launch = launch;
 
     return server;
+}
+
+static int _read(
+    Server* server,
+    const unsigned int buffer_size,
+    char* buffer
+) {
+    // accept();
+    unsigned int address_length = sizeof(server->address); //? server. or server->?
+    int new_socket = accept(
+        server->socket,
+        (struct sockaddr*)&server->address,
+        (socklen_t*)&address_length
+    );
+    read(new_socket, buffer, buffer_size);
+    return new_socket;
 }

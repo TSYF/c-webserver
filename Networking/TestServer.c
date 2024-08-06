@@ -1,28 +1,20 @@
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
 #include "Server.h"
 
 void test(Server *server) {
     printf("WAITING...\n");
 
-    int buffer_size;
-    int address_length;
-    int new_socket;
+    unsigned int buffer_size = (int)30e3;
+    char buffer[buffer_size];
     char* hello;
+    int new_socket;
 
     while (1) {
 
-        // accept();
-        buffer_size = (int)30e3;
-        char buffer[buffer_size];
-        address_length = sizeof(server->address); //? server. or server->?
-        new_socket = accept(
-            server->socket,
-            (struct sockaddr*)&server->address,
-            (socklen_t*)&address_length
+        new_socket = server->_read(
+            server,
+            buffer_size,
+            buffer
         );
-        read(new_socket, buffer, buffer_size);
 
         // handle();
         printf("%s\n", buffer);

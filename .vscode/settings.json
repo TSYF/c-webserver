@@ -63,7 +63,8 @@
     "types.h": "c",
     "stdio.h": "c",
     "linkedlist.h": "c",
-    "node.h": "c"
+    "node.h": "c",
+    "unistd.h": "c"
   },
   "C_Cpp.errorSquiggles": "disabled"
 }
