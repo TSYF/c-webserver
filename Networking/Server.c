@@ -7,7 +7,9 @@
 * @param buffer_size Size of allowed input
 * @param buffer String pointer into which to write the input.
 */
-static int _read(Server* server, const unsigned int buffer_size, char buffer[]);
+static int _in(Server* server, const unsigned int buffer_size, char buffer[]);
+static int _out(int new_socket, const char response[]);
+static void _launch(Server* server, void (*init)(Server*));
 
 Server server_constructor(
     int domain,
@@ -16,7 +18,7 @@ Server server_constructor(
     u_long interface,
     int port,
     int backlog,
-    void (*launch)(Server *server)
+    void (*handle)(Server*, char inData[])
 ) {
     Server server;
 
@@ -26,7 +28,6 @@ Server server_constructor(
     server.interface = interface;
     server.port = port;
     server.backlog = backlog;
-    server.launch = launch;
 
     server.address.sin_family = domain;
     server.address.sin_port = htons(port);
@@ -34,7 +35,9 @@ Server server_constructor(
 
     server.socket = socket(domain, service, protocol);
 
-    server._read = _read;
+    server._in = _in;
+    server._handle = handle;
+    server.out = _out;
     // test_connection(server.socket);
     
     if (server.socket == -1) {
@@ -59,15 +62,15 @@ Server server_constructor(
         exit(1);
     }
 
-    server.launch = launch;
+    server.launch = _launch;
 
     return server;
 }
 
-static int _read(
+static int _in(
     Server* server,
     const unsigned int buffer_size,
-    char* buffer
+    char buffer[buffer_size]
 ) {
     // accept();
     unsigned int address_length = sizeof(server->address); //? server. or server->?
@@ -78,4 +81,38 @@ static int _read(
     );
     read(new_socket, buffer, buffer_size);
     return new_socket;
+}
+
+static int _out(int new_socket, const char response[]) {
+    int out = write(new_socket, response, strlen(response));
+    return out;
+}
+
+static void _launch(Server* server, void (*init)(Server*)) {
+    unsigned int buffer_size = (int)30e3;
+    char buffer[buffer_size];
+    char* hello;
+    int new_socket;
+    
+    if (init != NULL) {
+        init(server);
+    }
+
+    while (1) {
+
+        new_socket = server->_in(
+            server,
+            buffer_size,
+            buffer
+        );
+
+        // handle();
+        server->_handle(server, buffer);
+
+        // respond();
+        hello = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 34\n\n<body><h1>Hello World!</h1></body>";
+        
+        server->out(new_socket, hello);
+        close(new_socket);
+    }
 }

@@ -21,11 +21,13 @@ typedef struct Server {
 
     int socket;
     
-    void (*launch)(struct Server*);
-
-    int (*_read)(struct Server*, const unsigned int, char[]);
+    void (*launch)(struct Server*, void (*init)(struct Server*));
+    
+    int (*_in)(struct Server*, const unsigned int, char[]);
+    void (*_handle)(struct Server* server, const char inData[]);
+    int (*out)(const int, char[]);
 } Server;
 
-Server server_constructor(int domain, int service, int protocol, u_long interface, int port, int backlog, void (*launch)(Server *server));
+Server server_constructor(int domain, int service, int protocol, u_long interface, int port, int backlog, void (*handle)(Server*, char[]));
 
 #endif /* SERVER_H */
