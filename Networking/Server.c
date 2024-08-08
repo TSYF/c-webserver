@@ -8,7 +8,7 @@
 * @param buffer String pointer into which to write the input.
 */
 static int _in(Server* server, const unsigned int buffer_size, char buffer[]);
-static int _out(int new_socket, const char response[]);
+static int _out(const int new_socket, const char response[]);
 static void _launch(Server* server, void (*init)(Server*));
 
 Server server_constructor(
@@ -18,7 +18,7 @@ Server server_constructor(
     u_long interface,
     int port,
     int backlog,
-    void (*handle)(Server*, char inData[])
+    void (*handle)(Server* server, const int socket, const char inData[])
 ) {
     Server server;
 
@@ -83,7 +83,7 @@ static int _in(
     return new_socket;
 }
 
-static int _out(int new_socket, const char response[]) {
+static int _out(const int new_socket, const char response[]) {
     int out = write(new_socket, response, strlen(response));
     return out;
 }
@@ -107,12 +107,10 @@ static void _launch(Server* server, void (*init)(Server*)) {
         );
 
         // handle();
-        server->_handle(server, buffer);
+        server->_handle(server, new_socket, buffer);
 
         // respond();
-        hello = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 34\n\n<body><h1>Hello World!</h1></body>";
-        
-        server->out(new_socket, hello);
+        server->out(new_socket, "");
         close(new_socket);
     }
 }

@@ -24,10 +24,10 @@ typedef struct Server {
     void (*launch)(struct Server*, void (*init)(struct Server*));
     
     int (*_in)(struct Server*, const unsigned int, char[]);
-    void (*_handle)(struct Server* server, const char inData[]);
-    int (*out)(const int, char[]);
+    void (*_handle)(struct Server* server, const int new_socket, const char inData[]); 
+    int (*out)(const int, const char[]);
 } Server;
 
-Server server_constructor(int domain, int service, int protocol, u_long interface, int port, int backlog, void (*handle)(Server*, char[]));
+Server server_constructor(int domain, int service, int protocol, u_long interface, int port, int backlog, void (*handle)(struct Server* server, const int new_socket, const char inData[]));
 
 #endif /* SERVER_H */
