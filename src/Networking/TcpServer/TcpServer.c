@@ -1,4 +1,4 @@
-#include "BasicServer.h"
+#include "TcpServer.h"
 #include <stdio.h>
 #include <unistd.h>
 
@@ -7,13 +7,13 @@
 * @param buffer_size Size of allowed input
 * @param buffer String pointer into which to write the input.
 */
-static int _in(BasicServer* server, const unsigned int buffer_size, char buffer[]);
-static char* _out(BasicServer* server, const int new_socket, const char response[]);
-static int _send(BasicServer* server, const int new_socket);
-static void _launch(BasicServer* server, void (*init)(BasicServer*));
+static int _in(TcpServer* server, const unsigned int buffer_size, char buffer[]);
+static char* _out(const TcpServer* server, const int new_socket, const char response[]);
+static int _send(const TcpServer* server, const int new_socket);
+static void _launch(TcpServer* server, void (*init)(TcpServer*));
 
-BasicServer base_server_constructor(void (*handle)(BasicServer* server, const int socket, const char inData[])) {
-    BasicServer server;
+TcpServer base_server_constructor(const TcpHandleFunc handle) {
+    TcpServer server;
 
     server.domain = AF_INET;
     server.service = SOCK_STREAM;
@@ -62,17 +62,17 @@ BasicServer base_server_constructor(void (*handle)(BasicServer* server, const in
     return server;
 }
 
-BasicServer server_constructor(
-    int domain,
-    int service,
-    int protocol,
-    u_long interface,
-    int port,
-    int backlog,
-    int buffer_size,
-    void (*handle)(BasicServer* server, const int socket, const char inData[])
+TcpServer server_constructor(
+    const int domain,
+    const int service,
+    const int protocol,
+    const u_long interface,
+    const int port,
+    const int backlog,
+    const int buffer_size,
+    const TcpHandleFunc handle
 ) {
-    BasicServer server;
+    TcpServer server;
 
     server.domain = domain;
     server.service = service;
@@ -122,7 +122,7 @@ BasicServer server_constructor(
 }
 
 static int _in(
-    BasicServer* server,
+    TcpServer* server,
     const unsigned int buffer_size,
     char buffer[buffer_size]
 ) {
@@ -137,11 +137,11 @@ static int _in(
     return new_socket;
 }
 
-static char* _out(BasicServer* server, const int new_socket, const char response[]) {
+static char* _out(const TcpServer* server, const int new_socket, const char response[]) {
     return strcat(server->outData, response);
 }
 
-static int _send(BasicServer* server, const int new_socket) {
+static int _send(const TcpServer* server, const int new_socket) {
     printf("SENDING\n");
     printf(server->outData);
     printf("\n");
@@ -150,10 +150,8 @@ static int _send(BasicServer* server, const int new_socket) {
     return out;
 }
 
-static void _launch(BasicServer* server, void (*init)(BasicServer*)) {
-    unsigned int buffer_size = (int)30e3;
-    char buffer[buffer_size];
-    char* hello;
+static void _launch(TcpServer* server, void (*init)(TcpServer*)) {
+    char buffer[S_DEF_BUFFER_SIZE];
     int new_socket;
     
     if (init != NULL) {
@@ -164,11 +162,12 @@ static void _launch(BasicServer* server, void (*init)(BasicServer*)) {
 
         new_socket = server->_in(
             server,
-            buffer_size,
+            S_DEF_BUFFER_SIZE,
             buffer
         );
 
         // handle();
+        memset(server->outData, 0, sizeof(server->outData));
         server->_handle(server, new_socket, buffer);
 
         // respond();

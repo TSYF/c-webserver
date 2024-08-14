@@ -1,6 +1,6 @@
-#include "BasicServer.h"
+#include "TcpServer.h"
 
-void handle(BasicServer* server, const int socket, const char inData[]) {
+void handle(TcpServer* server, const int socket, const char inData[]) {
     printf("======== HANDLING ========\n");
     printf(inData);
 
@@ -17,12 +17,12 @@ void handle(BasicServer* server, const int socket, const char inData[]) {
     printf("======== HANDLED =========\n");
 }
 
-void init(BasicServer* server) {
+void init(TcpServer* server) {
     printf("LISTENING...\n");
 }
 
 int main() {
-    BasicServer server = server_constructor(AF_INET, SOCK_STREAM, S_DEF_PROTOCOL, INADDR_ANY, S_DEF_PORT, S_DEF_MAX_CLIENTS, S_DEF_BUFFER_SIZE, handle);
+    TcpServer server = server_constructor(AF_INET, SOCK_STREAM, S_DEF_PROTOCOL, INADDR_ANY, S_DEF_PORT, S_DEF_MAX_CLIENTS, S_DEF_BUFFER_SIZE, handle);
 
     server.launch(&server, init);
 }
