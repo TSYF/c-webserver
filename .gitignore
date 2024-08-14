@@ -1,2 +1,5 @@
 **/a.out
+**/.o
 /TestServer
+/libBasicServer.so
+/default.nix
