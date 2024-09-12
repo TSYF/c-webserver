@@ -1,26 +1,26 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include <stdlib.h>
-#include <sys/types.h>
 #include <sys/socket.h>
-#include <netinet/in.h>
-#include <stdio.h>
-#include <string.h>
 #include <unistd.h>
+#include <stdarg.h>
+#include <stdint.h>
+#include <netinet/in.h>
 
-#define S_DEF_PROTOCOL 0
-#define S_DEF_PORT 8080
-#define S_DEF_MAX_CLIENTS 10
-#define S_DEF_BUFFER_SIZE (int)30e3
+#define TCP_S_DEF_PROTOCOL 0
+#define TCP_S_DEF_PORT 8080
+#define TCP_S_DEF_MAX_CLIENTS 10
+#define TCP_S_DEF_BUFFER_SIZE (int)3e4
+#define TCP_S_MTU 65536
 
 typedef struct TcpServer TcpServer;
 
-typedef int (*TcpReceiverFunc)(TcpServer*, const unsigned int, char[]);
-typedef void (*TcpHandleFunc)(TcpServer* server, const int new_socket, const char inData[]);
-typedef char* (*TcpOutputFunc)(const TcpServer* server, const int, const char[]);
-typedef int (*TcpSendFunc)(const TcpServer*, const int);
-typedef void (*TcpServerLaunchFunc)(TcpServer*, void (*init)(struct TcpServer*));
+typedef int (*TcpReceiverFunc)(TcpServer* server, size_t buffer_size, char buffer[]);
+typedef void (*TcpHandleFunc)(TcpServer* server, const char inData[], uint8_t argc, ...);
+typedef char* (*TcpOutputFunc)(TcpServer* server, const char[]);
+typedef int (*TcpSendFunc)(const TcpServer* server, const int new_socket);
+typedef void (*TcpServerLaunchFunc)(TcpServer*, void (*init)(TcpServer*), uint8_t argc, ...);
+
 
 struct TcpServer {
     int domain;
@@ -41,7 +41,8 @@ struct TcpServer {
     TcpOutputFunc out;
     TcpSendFunc send;
 
-    char* outData;
+    uint32_t outDataSize;
+    char outData[TCP_S_MTU];
 };
 
 TcpServer base_server_constructor(const TcpHandleFunc handle);
@@ -52,7 +53,6 @@ TcpServer server_constructor(
     const u_long interface,
     const int port,
     const int backlog,
-    const int buffer_size,
     const TcpHandleFunc handle
 );
 

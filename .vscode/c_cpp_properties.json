@@ -5,7 +5,7 @@
             "includePath": [
                 "${workspaceFolder}/**"
             ],
-            "compilerPath": "/run/current-system/sw/bin/gcc",
+            "compilerPath": "/usr/bin/gcc",
             "cStandard": "c23",
             "cppStandard": "${default}",
             "intelliSenseMode": "linux-gcc-x64",
