@@ -2,22 +2,22 @@ CC=gcc
 CFLAGS=-fPIC -O2
 
 test:
-	$(CC) src/Networking/TcpServer/TcpServer.c \
-			src/Networking/TcpServer/TestTcpServer.c \
+	$(CC) core/TcpServer/TcpServer.c \
+			core/TcpServer/TestTcpServer.c \
 		-o TestTcpServer
 
 testHttp:
-	$(CC) src/Networking/TcpServer/TcpServer.c \
-			src/Networking/HttpServer/HttpServer.c \
-			src/Utilities/HashTable/HashTable.c \
-			src/Networking/HttpServer/TestHttpServer.c \
+	$(CC) core/TcpServer/TcpServer.c \
+			core/HttpServer/HttpServer.c \
+			utils/HashTable/HashTable.c \
+			core/HttpServer/TestHttpServer.c \
 		-o TestHttpServer
 
 debugHttp:
 	$(CC) -ggdb \
 	-fdiagnostics-color=always \
-		-g src/Networking/TcpServer/TcpServer.c \
-		src/Utilities/HashTable/HashTable.c \
-		src/Networking/HttpServer/HttpServer.c \
-		src/Networking/HttpServer/TestHttpServer.c \
+		-g core/TcpServer/TcpServer.c \
+		utils/HashTable/HashTable.c \
+		core/HttpServer/HttpServer.c \
+		core/HttpServer/TestHttpServer.c \
 	-o DebugHttpServer
