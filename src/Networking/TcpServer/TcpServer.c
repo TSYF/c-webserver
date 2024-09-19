@@ -1,4 +1,5 @@
 #include "TcpServer.h"
+#include "../HttpServer/HttpServer.h"
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -198,7 +199,8 @@ static void _launch(TcpServer* server, void (*init)(TcpServer*), uint8_t argc, .
 
         if (argc < 1)
         {
-            server->_handle(server, buffer, 0);
+            va_list empty;
+            server->_handle(server, buffer, 0, empty);
         } else {
             va_list args;
             va_start(args, argc);

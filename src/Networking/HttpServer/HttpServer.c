@@ -9,7 +9,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-static void tcpHandleFunc(TcpServer* server, const char data[], uint8_t argc, ...);
+static void tcpHandleFunc(TcpServer* server, const char data[], uint8_t argc, va_list args);
 
 char* adjustStringToSize(char buffer[]);
 
@@ -134,8 +134,6 @@ HttpServer* base_httpserver_constructor(const HttpHandleFunc handle)
     httpServer->tcpServer = (TcpServer*)malloc(sizeof(TcpServer));
 
     httpServer->onRequest = handle;
-    httpServer->onRequest(NULL, NULL, NULL);
-    handle(NULL, NULL, NULL);
 
     if (httpServer->tcpServer)
     {
@@ -148,7 +146,7 @@ HttpServer* base_httpserver_constructor(const HttpHandleFunc handle)
 //* ========== END SERVER ==========
 
 //* ========== UTILS ==========
-void tcpHandleFunc(TcpServer* server, const char data[], uint8_t argc, ...)
+void tcpHandleFunc(TcpServer* server, const char data[], uint8_t argc, va_list args)
 {
 
     // Get httpServer from variable args
@@ -159,12 +157,11 @@ void tcpHandleFunc(TcpServer* server, const char data[], uint8_t argc, ...)
     }
 
     printf("===== INITIALIZING VAARGS =====\n");
-    va_list args;
-    va_start(args, argc);
     HttpServer* httpServer;
     if (argc > 0)
     {
-        httpServer = (HttpServer*)va_arg(args, HttpServer *);
+        httpServer = va_arg(args, HttpServer *);
+        // httpServer = va_arg(va_arg(args, va_list), HttpServer *);
     }
     va_end(args);
     printf("===== END INITIALIZING VAARGS =====");
@@ -213,7 +210,7 @@ void tcpHandleFunc(TcpServer* server, const char data[], uint8_t argc, ...)
 static HttpResponse* statusResponse(HttpResponse* response, uint16_t statusCode)
 {
     response->code = statusCode;
-    char stat[3];
+    char* stat = malloc(9 * sizeof(char));
     sprintf(stat, "%i", statusCode);
     strcpy(response->status, http_statuses->get(http_statuses, stat));
     return response;
@@ -221,14 +218,14 @@ static HttpResponse* statusResponse(HttpResponse* response, uint16_t statusCode)
 
 static void sendResponse(HttpResponse* response, const char* body)
 {
-    char ret[512];
-    sprintf(ret, "HTTP/%s%s %i %s\r\n", response->version, response->code, response->status);
+    char* ret = malloc(512 * sizeof(char));
+    sprintf(ret, "%s %i %s\r\n", response->version, response->code, response->status);
 
     char responseString[(int)strlen(body) + 4];
     sprintf(responseString, "\r\n\r\n%s", body);
     
     response->tcpServer->out(response->tcpServer, ret);
-    response->tcpServer->out(response->tcpServer, "\r\nContent-Type: text/html");
+    response->tcpServer->out(response->tcpServer, "Content-Type: text/html");
     response->tcpServer->out(response->tcpServer, responseString);
 }
 

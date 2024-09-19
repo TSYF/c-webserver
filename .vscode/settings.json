@@ -70,7 +70,9 @@
     "httpserver.h": "c",
     "stdint.h": "c",
     "tcpserver.h": "c",
-    "cstdint": "c"
+    "cstdint": "c",
+    "stdbool.h": "c",
+    "hashtable.h": "c"
   },
   "C_Cpp.errorSquiggles": "disabled"
 }

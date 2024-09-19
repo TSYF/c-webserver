@@ -16,7 +16,7 @@
 typedef struct TcpServer TcpServer;
 
 typedef int (*TcpReceiverFunc)(TcpServer* server, size_t buffer_size, char buffer[]);
-typedef void (*TcpHandleFunc)(TcpServer* server, const char inData[], uint8_t argc, ...);
+typedef void (*TcpHandleFunc)(TcpServer* server, const char inData[], uint8_t argc, va_list args);
 typedef char* (*TcpOutputFunc)(TcpServer* server, const char[]);
 typedef int (*TcpSendFunc)(const TcpServer* server, const int new_socket);
 typedef void (*TcpServerLaunchFunc)(TcpServer*, void (*init)(TcpServer*), uint8_t argc, ...);
